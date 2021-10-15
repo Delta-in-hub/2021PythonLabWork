@@ -191,3 +191,5 @@ $RECYCLE.BIN/
 
 lession2/data/*
 !lession2/data/Readme.md
+
+test.py
