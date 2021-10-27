@@ -61,17 +61,25 @@ def getHistoryAqi(cityName: str):
             pass  # 直辖市
         else:
             fullCityName = adm1.lower() + "/" + adm2.lower()
-            pass
+
+        print(fullCityName)
+
         rcityid = requests.get(
             f"https://website-api.airvisual.com/v1/routes/china/{fullCityName}")
 
-        cityid = json5.loads(rcityid.content.decode())['id']
+        if rcityid.status_code == 200:
+            cityid = json5.loads(rcityid.content.decode())['id']
+        else:
+            return None
 
         rHis = requests.get(
             f"https://website-api.airvisual.com/v1/cities/{cityid}/measurements")
-
-        history = json5.loads(rHis.content.decode())['measurements']['daily']
-        return history[len(history)-7: len(history)]
+        if rHis.status_code == 200:
+            history = json5.loads(rHis.content.decode())[
+                'measurements']['daily']
+            return history[len(history)-7: len(history)]
+        else:
+            return None
     else:
         return None
 
@@ -80,9 +88,10 @@ def creatMathPlot(cityName: str):
     res = getHistoryAqi(cityName)
     d = list()
     daqi = list()
-    for i in res:
-        d.append(str(i['ts']).split('T')[0])
-        daqi.append(int(i['aqi']))
+    if res:
+        for i in res:
+            d.append(str(i['ts']).split('T')[0])
+            daqi.append(int(i['aqi']))
 
     fig = Figure(figsize=(7, 5), dpi=100)
 
